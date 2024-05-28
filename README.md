@@ -81,3 +81,32 @@ def login(user: User):
 
 de esta manera forzamos a que el usuario envíe lo que nosotros necesitamos como data y de no hacerlo de esta manera según los campos requeridos, lanzaremos un error.
 Por otro lado hay que saber que cada modelo de pydantic puede transformarse a un diccionario de python, mediante el método "***.dict()***"
+
+## Conectando la app a PostgreSQL
+
+En mi caso puntual monté un postgres mediante docker, pero se puede seguir la instalación por defecto de postgres tanto para MacOS, windows o linux.
+
+Para conectarnos a postgres desde python, necesitamos la librería psycopg. La misma la instalamos desde la terminal usando pip
+
+```python
+pip install psycopg2-binary
+```
+
+Una vez instalada, necesitamos importarla en nuestra app mediante el comando:
+`import psycopg2`
+
+Generamos la conexión y el cursor que es quién nos permite executar las sentencias de SQL
+
+```python
+try:
+    # parametrso de la conexión
+    # cursor_factory setea el tipo de cursor, en este caso para que nos devuelva el nombre de las columnas
+    # elegimos RealDictCursor, y hay que importarlo.
+    # from pyscopg2.extras import RealDictCursor
+    conn = psycopg2.connect(host, database, user, password, cursor_factory=RealDictCursor)
+
+    cursor = conn.cursor()
+    print("Successfully connected to db")
+except Exception as err:
+    print(f"Connection failed with error: {err}")
+```
