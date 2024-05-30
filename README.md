@@ -132,6 +132,7 @@ def get_posts():
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post):
+    # %s es para formatear el string y previene de SQL injection
     cursor.execute("INSERT INTO public.posts (title, content) VALUES(%s,%s) RETURNING *",
                    (post.title, post.content))
     new_post = cursor.fetchone()
