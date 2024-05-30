@@ -17,6 +17,11 @@ class User(BaseModel):
     DoB: Optional[date]
 
 
+class Post(BaseModel):
+    title: str
+    content: str
+    
+
 @app.get("/login")
 async def loggin_user():
     user = None
@@ -28,14 +33,18 @@ async def loggin_user():
 
 @app.get("/posts")
 def get_posts():
-    return {"data": "This is your posts...1...2...3"}
+    cursor.execute("""SELECT * FROM posts""")
+    posts = cursor.fetchall()
+    return {"data": posts}
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def post_creation(payload: dict = Body(...)):
-    print(payload)
-    
-    return {"message": "succesfully created post"}
+def create_post(post: Post):
+    cursor.execute("INSERT INTO public.posts (title, content) VALUES(%s,%s) RETURNING *",
+                   (post.title, post.content))
+    new_post = cursor.fetchone()
+    conn.commit()
+    return {"message": new_post}
 
 
 @app.post("/users")
