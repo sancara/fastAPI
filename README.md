@@ -139,3 +139,87 @@ def create_post(post: Post):
     conn.commit()
     return {"message": new_post}
 ```
+
+## Intereactuando con la base de datos a través de ORM
+
+Si bien con el código anterior logramos llegar a la base de datos e interactuar con ella, comunmente se utiliza un ORM.
+En este código usarmos sqlalchemy. Lo que busca esta librería es tratar a las tablas y los datos que queremos ingresar, como objetos. Con lo cuál mediante métodos, armaremos la sentencia SQL
+
+    pip install sqlalchemy
+
+sqlalchemy no sabe como "hablar" con la base de datos, por lo tanto tenemos que armar la conexión.
+creamos **database.py** para manejar la conexión:
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+user = os.getenv('DB_USER')
+password = os.getenv('DB_PASSWORD')
+host = os.getenv('DB_HOST')
+db = os.getenv('DB_NAME')
+
+SQLALCHEMY_DATABASE_URL = f"postgresql://{user}:{password}@{host}/{db}"
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL
+)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+```
+
+ahora lo importante, las tablas, a las mismas se les llama modelos. Creamos un archivo llamado **models.py**
+```python
+from .database import Base
+from sqlalchemy import Column, Integer, String
+
+
+class Post(Base):
+    __tablename__ = 'posts'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    title = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+```
+
+> Importante!!!
+> hay que agregar lo siguiente al main.py
+> "models.Base.metadata.create_all(bind=engine)"
+> debemos importar models, engine, sessionlocal
+
+nos falta desde el main, crear el tunel de conexión a la bd.
+
+```python
+# se agregan estos imports a los que teníamos
+from sqlalchemy.orm import Session
+from . import models
+from . database import engine, SessionLocal
+from fastapi import Depends
+
+
+models.Base.metadata.create_all(bind=engine)
+
+# también podríamos dejar esto en el database.py e importarlo
+# conexión a la db
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+crearemos un endpoint de prueba, para probar la conexión y la interacción mediante ORM
+```python
+
+@app.get("/sqlalchemy")
+def get_post_db(db: Session = Depends(get_db)):
+    return {"status": "Success"}
+    
+```

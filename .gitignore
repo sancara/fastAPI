@@ -1,2 +1,4 @@
 /fastAPI
 __pycache__
+
+.env
