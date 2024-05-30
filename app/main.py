@@ -44,12 +44,24 @@ def get_posts(db: Session = Depends(get_db)):
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post, db: Session = Depends(get_db)):
-    new_post = (models.Post(title=post.title, content=post.content))
+
+    # if the model has much more attributes, it will cause some pain
+    # to parse every single column
+    # new_post = (models.Post(title=post.title, content=post.content))
+
+    # better approach
+    new_post = models.Post(**post.model_dump())
     db.add(new_post)
     db.commit()
     # returning
     db.refresh(new_post)
     return {"message": new_post}
+
+
+@app.get("/posts/{id}")
+def get_post_by_id(id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == id).one()
+    return {"data": post}
 
 
 @app.post("/users")

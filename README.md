@@ -234,6 +234,30 @@ def create_post(post: Post, db: Session = Depends(get_db)):
      
 ```
 
+```python
+
+@app.post("/posts", status_code=status.HTTP_201_CREATED)
+def create_post(post: Post, db: Session = Depends(get_db)):
+
+    # if the model has much more attributes, it will cause some pain
+    # to parse every single column
+    # a better approach
+    new_post = models.Post(**post.model_dump())
+    db.add(new_post)
+    db.commit()
+    # returning
+    db.refresh(new_post)
+    return {"message": new_post}
+
+
+# get by id
+@app.get("/posts/{id}")
+def get_post_by_id(id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == id).one()
+    return {"data": post}
+
+```
+
 de esta manera, se crean las tablas, llegamos a nuestra bd a través del ORM.
 ¿Qué pasa si modificamos nuestra tabla y la misma ya está creada? SqlAlchemy no se ocupa de eso :sad:
 
