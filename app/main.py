@@ -13,6 +13,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+
 class User(BaseModel):
     name: str
     lastname: str
@@ -29,6 +30,7 @@ class Post(BaseModel):
 @app.get("/sqlalchemy")
 def get_post_db(db: Session = Depends(get_db)):
     return {"status": "Success"}
+
 
 @app.get("/login")
 async def loggin_user():

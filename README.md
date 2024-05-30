@@ -223,3 +223,8 @@ def get_post_db(db: Session = Depends(get_db)):
     return {"status": "Success"}
     
 ```
+
+de esta manera, se crean las tablas, llegamos a nuestra bd a través del ORM.
+¿Qué pasa si modificamos nuestra tabla y la misma ya está creada? SqlAlchemy no se ocupa de eso :sad:
+
+## Cambios en los esquemas de las tablas ALEMBIC
