@@ -110,3 +110,31 @@ try:
 except Exception as err:
     print(f"Connection failed with error: {err}")
 ```
+
+## Interactuando con la base de datos
+
+Ya configuramos la base de datos, tenemos nuestra conexión lista y nuestro cursor.
+Refactoreemos los métodos GET y POST usando el cursor:
+
+```python
+
+class Post(BaseModel):
+    title: str
+    content: str
+    
+
+@app.get("/posts")
+def get_posts():
+    cursor.execute("""SELECT * FROM posts""")
+    posts = cursor.fetchall()
+    return {"data": posts}
+
+
+@app.post("/posts", status_code=status.HTTP_201_CREATED)
+def create_post(post: Post):
+    cursor.execute("INSERT INTO public.posts (title, content) VALUES(%s,%s) RETURNING *",
+                   (post.title, post.content))
+    new_post = cursor.fetchone()
+    conn.commit()
+    return {"message": new_post}
+```
