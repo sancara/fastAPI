@@ -218,10 +218,20 @@ def get_db():
 crearemos un endpoint de prueba, para probar la conexión y la interacción mediante ORM
 ```python
 
-@app.get("/sqlalchemy")
-def get_post_db(db: Session = Depends(get_db)):
-    return {"status": "Success"}
-    
+@app.get("/posts")
+def get_posts(db: Session = Depends(get_db)):
+    posts = db.query(models.Post).all()
+    return {"data": posts}
+
+@app.post("/posts", status_code=status.HTTP_201_CREATED)
+def create_post(post: Post, db: Session = Depends(get_db)):
+    new_post = (models.Post(title=post.title, content=post.content))
+    db.add(new_post)
+    db.commit()
+    # returning
+    db.refresh(new_post)
+    return {"message": new_post}   
+     
 ```
 
 de esta manera, se crean las tablas, llegamos a nuestra bd a través del ORM.

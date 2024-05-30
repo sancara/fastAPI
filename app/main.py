@@ -25,11 +25,6 @@ class User(BaseModel):
 class Post(BaseModel):
     title: str
     content: str
-    
-
-@app.get("/sqlalchemy")
-def get_post_db(db: Session = Depends(get_db)):
-    return {"status": "Success"}
 
 
 @app.get("/login")
@@ -42,19 +37,18 @@ async def loggin_user():
 
 
 @app.get("/posts")
-def get_posts():
-    cursor.execute("""SELECT * FROM posts""")
-    posts = cursor.fetchall()
+def get_posts(db: Session = Depends(get_db)):
+    posts = db.query(models.Post).all()
     return {"data": posts}
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(post: Post):
-    cursor.execute("""INSERT INTO public.posts (title, content) VALUES(%s,%s) 
-                   RETURNING *""",
-                   (post.title, post.content))
-    new_post = cursor.fetchone()
-    conn.commit()
+def create_post(post: Post, db: Session = Depends(get_db)):
+    new_post = (models.Post(title=post.title, content=post.content))
+    db.add(new_post)
+    db.commit()
+    # returning
+    db.refresh(new_post)
     return {"message": new_post}
 
 
@@ -67,21 +61,3 @@ def login(user: User):
             return "You are logged"
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
                         detail="Your credentials are incorrect")
-
-
-try:
-    # parametrso de la conexión
-    # cursor_factory setea el tipo de cursor, en este caso para que nos 
-    # devuelva el nombre de las columnas
-    # elegimos RealDictCursor, y hay que importarlo.
-    # from pyscopg2.extras import RealDictCursor
-    conn = psycopg2.connect(host="localhost",
-                            database="fastAPI",
-                            user="postgres",
-                            password="root",
-                            cursor_factory=RealDictCursor)
-
-    cursor = conn.cursor()
-    print("Successfully connected to db")
-except Exception as err:
-    print(f"Connection failed with error: {err}")
