@@ -42,6 +42,17 @@ def get_posts(db: Session = Depends(get_db)):
     return {"data": posts}
 
 
+@app.get("/posts/{id}")
+def get_post_by_id(id: int, db: Session = Depends(get_db)):
+
+    post = db.query(models.Post).filter(models.Post.id == id).first()
+
+    if post:
+        return {"data": post}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+                        detail=f"post with id {id} not found")    
+
+
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post, db: Session = Depends(get_db)):
 
@@ -58,11 +69,19 @@ def create_post(post: Post, db: Session = Depends(get_db)):
     return {"message": new_post}
 
 
-@app.get("/posts/{id}")
-def get_post_by_id(id: int, db: Session = Depends(get_db)):
-    post = db.query(models.Post).filter(models.Post.id == id).one()
-    return {"data": post}
+@app.delete("/posts/{id}")
+def delete_post_by_id(id: int, db: Session = Depends(get_db)):
 
+    post_to_delete = db.query(models.Post).filter(models.Post.id == id)
+
+    if post_to_delete.first() == None: 
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"post with id {id} not found")
+    
+    post_to_delete.delete(synchronize_session=False)
+    db.commit()
+    return post_to_delete
+    
 
 @app.post("/users")
 def login(user: User):

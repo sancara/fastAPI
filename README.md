@@ -254,6 +254,7 @@ def create_post(post: Post, db: Session = Depends(get_db)):
 @app.get("/posts/{id}")
 def get_post_by_id(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id).one()
+    
     return {"data": post}
 
 ```
