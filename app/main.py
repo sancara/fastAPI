@@ -1,30 +1,12 @@
 from fastapi import FastAPI, HTTPException, status, Depends
-from pydantic import BaseModel
-from typing import Optional
-from datetime import date
 from sqlalchemy.orm import Session
-from . import models
+from . import models, schemas
 from . database import engine, get_db
-import psycopg2
-from psycopg2.extras import RealDictCursor
 
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-
-class User(BaseModel):
-    name: str
-    lastname: str
-    email: str
-    password: str
-    DoB: Optional[date]
-
-
-class Post(BaseModel):
-    title: str
-    content: str
 
 
 @app.get("/login")
@@ -54,7 +36,7 @@ def get_post_by_id(id: int, db: Session = Depends(get_db)):
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(post: Post, db: Session = Depends(get_db)):
+def create_post(post: schemas.Post, db: Session = Depends(get_db)):
 
     # if the model has much more attributes, it will cause some pain
     # to parse every single column
@@ -77,14 +59,14 @@ def delete_post_by_id(id: int, db: Session = Depends(get_db)):
     if post_to_delete.first() == None: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail=f"post with id {id} not found")
-    
+
     post_to_delete.delete(synchronize_session=False)
     db.commit()
     return post_to_delete
-    
+
 
 @app.post("/users")
-def login(user: User):
+def login(user: schemas.User):
     data = {"santiago": {"name": "Santiago", "password": "admin1234"}}
 
     if user.name in data.keys():
