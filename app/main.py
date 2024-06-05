@@ -35,7 +35,7 @@ def get_post_by_id(id: int, db: Session = Depends(get_db)):
                         detail=f"post with id {id} not found")    
 
 
-@app.post("/posts", status_code=status.HTTP_201_CREATED)
+@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_post(post: schemas.Post, db: Session = Depends(get_db)):
 
     # if the model has much more attributes, it will cause some pain
@@ -65,7 +65,7 @@ def delete_post_by_id(id: int, db: Session = Depends(get_db)):
     return post_to_delete
 
 
-@app.post("/users")
+@app.post("/users", response_model=schemas.User)
 def login(user: schemas.User):
     data = {"santiago": {"name": "Santiago", "password": "admin1234"}}
 
