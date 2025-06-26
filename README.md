@@ -24,15 +24,7 @@ Both commands work, but `uv add` is the preferred way as it's faster and handles
 
 Here's our first FastAPI application (`main.py`):
 
-```python
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-```
+![payload](docs/image.png)
 
 Let's break down each part:
 
