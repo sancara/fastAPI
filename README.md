@@ -37,7 +37,7 @@ Let's break down each part:
 To run the application:
 
 ```bash
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 The `--reload` flag enables auto-reload during development when code changes are detected.
