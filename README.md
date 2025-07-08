@@ -122,3 +122,67 @@ async def create_post(post: Post):
 ```
 
 When you send a POST request with JSON data, FastAPI automatically validates it against the `Post` model and provides a Python object with all the validated data.
+
+## Path Parameters
+
+FastAPI allows you to capture dynamic values from the URL using **path parameters**:
+
+```python
+@app.get("/posts/{id}")
+async def read_post(id: int):
+    return {"data": f"post {id}"}
+```
+
+### How it works:
+
+- **`{id}`**: Defines a path parameter in the URL
+- **`id: int`**: FastAPI automatically converts the URL parameter to an integer
+- **Automatic validation**: Returns a 422 error if the parameter can't be converted to the specified type
+- **Example requests**:
+  - `GET /posts/1` → `id = 1`
+  - `GET /posts/abc` → 422 Validation Error (not an integer)
+
+The important catch here is that path parameters are string type, so we need to pass the type hinting in the function, so that we convert to the desire type
+
+## HTTP Exceptions and Error Handling
+
+FastAPI provides `HTTPException` to return proper HTTP error responses when something goes wrong:
+
+```python
+from fastapi import HTTPException, status
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Post {id} not found"
+        )
+```
+
+### How it works:
+
+- **`HTTPException`**: FastAPI's way to return HTTP error responses
+- **`status_code`**: The HTTP status code (404, 400, 500, etc.)
+- **`detail`**: Error message that will be returned in the JSON response
+- **`status.HTTP_404_NOT_FOUND`**: Using status constants for better readability
+
+### Common HTTP Status Codes:
+
+- **404 Not Found**: Resource doesn't exist
+- **400 Bad Request**: Invalid request data
+- **401 Unauthorized**: Authentication required
+- **403 Forbidden**: Insufficient permissions
+- **500 Internal Server Error**: Server-side error
+
+## Changing HTTP status for the Endpoint
+
+FastAPI also allows us to return a propper or custom HTTP status response
+
+```python
+from fastapi import HTTPException, status
+
+@app.get("/posts", status_code=status.HTTP_201_CREATED)
+```
+
+### How it works:
+
+- **`status_code`**: The HTTP status code (200, 201, etc.)
+- **`status.HTTP_201_CREATED`**: Using status constants for better readability
