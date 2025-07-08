@@ -172,7 +172,7 @@ from fastapi import HTTPException, status
 - **403 Forbidden**: Insufficient permissions
 - **500 Internal Server Error**: Server-side error
 
-## Changing HTTP status for the Endpoint
+## Changing HTTP status for the Endpoint
 
 FastAPI also allows us to return a propper or custom HTTP status response
 
@@ -186,3 +186,7 @@ from fastapi import HTTPException, status
 
 - **`status_code`**: The HTTP status code (200, 201, etc.)
 - **`status.HTTP_201_CREATED`**: Using status constants for better readability
+
+## Automatic Documentation
+
+FastAPI comes with automatic documentation built in. You would find it in the `/docs` path.
