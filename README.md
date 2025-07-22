@@ -190,3 +190,5 @@ from fastapi import HTTPException, status
 ## Automatic Documentation
 
 FastAPI comes with automatic documentation built in. You would find it in the `/docs` path.
+
+## Set up a Database
